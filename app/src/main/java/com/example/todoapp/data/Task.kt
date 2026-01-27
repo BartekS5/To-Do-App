@@ -12,7 +12,6 @@ data class Task(
     val dueTime: Long,
     val isCompleted: Boolean = false,
     val isNotificationEnabled: Boolean = false,
-    val notificationTimeBefore: Int = 15,
     val category: String,
     val attachmentUris: String = ""
 )

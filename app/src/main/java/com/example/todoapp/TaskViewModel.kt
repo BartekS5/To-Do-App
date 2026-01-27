@@ -2,6 +2,8 @@ package com.example.todoapp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todoapp.data.Category
+import com.example.todoapp.data.CategoryDao
 import com.example.todoapp.data.Task
 import com.example.todoapp.data.TaskDao
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,11 +12,17 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class TaskViewModel(private val dao: TaskDao) : ViewModel() {
+class TaskViewModel(
+    private val dao: TaskDao,
+    private val categoryDao: CategoryDao // Added CategoryDao dependency
+) : ViewModel() {
 
     val searchQuery = MutableStateFlow("")
     val hideCompleted = MutableStateFlow(false)
     val selectedCategories = MutableStateFlow<Set<String>>(emptySet())
+
+    // Expose categories for the dropdown
+    val allCategories = categoryDao.getAllCategories()
 
     val tasks = combine(
         dao.getAllTasks(),
@@ -40,6 +48,9 @@ class TaskViewModel(private val dao: TaskDao) : ViewModel() {
             }
             is TaskEvent.SetSearchQuery -> searchQuery.value = event.query
             is TaskEvent.ToggleHideCompleted -> hideCompleted.value = event.hide
+            // New Events
+            is TaskEvent.SaveTask -> viewModelScope.launch { dao.insertTask(event.task) }
+            is TaskEvent.SaveCategory -> viewModelScope.launch { categoryDao.insertCategory(event.category) }
         }
     }
 }
@@ -49,4 +60,7 @@ sealed interface TaskEvent {
     data class ToggleComplete(val task: Task): TaskEvent
     data class SetSearchQuery(val query: String): TaskEvent
     data class ToggleHideCompleted(val hide: Boolean): TaskEvent
+    // New Event Types
+    data class SaveTask(val task: Task): TaskEvent
+    data class SaveCategory(val category: Category): TaskEvent
 }
