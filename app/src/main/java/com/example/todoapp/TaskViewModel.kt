@@ -6,6 +6,8 @@ import com.example.todoapp.data.Category
 import com.example.todoapp.data.CategoryDao
 import com.example.todoapp.data.Task
 import com.example.todoapp.data.TaskDao
+import com.example.todoapp.data.repository.CategoryRepository
+import com.example.todoapp.data.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -13,8 +15,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TaskViewModel(
-    private val dao: TaskDao,
-    private val categoryDao: CategoryDao // Added CategoryDao dependency
+    private val taskRepository: TaskRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     val searchQuery = MutableStateFlow("")
@@ -22,10 +24,10 @@ class TaskViewModel(
     val selectedCategories = MutableStateFlow<Set<String>>(emptySet())
 
     // Expose categories for the dropdown
-    val allCategories = categoryDao.getAllCategories()
+    val allCategories = categoryRepository.getAllCategoriesStream()
 
     val tasks = combine(
-        dao.getAllTasks(),
+        taskRepository.getAllTasksStream(),
         searchQuery,
         hideCompleted,
         selectedCategories
@@ -42,15 +44,15 @@ class TaskViewModel(
 
     fun onEvent(event: TaskEvent) {
         when(event) {
-            is TaskEvent.DeleteTask -> viewModelScope.launch { dao.deleteTask(event.task) }
+            is TaskEvent.DeleteTask -> viewModelScope.launch { taskRepository.deleteTask(event.task) }
             is TaskEvent.ToggleComplete -> viewModelScope.launch {
-                dao.updateTask(event.task.copy(isCompleted = !event.task.isCompleted))
+                taskRepository.updateTask(event.task.copy(isCompleted = !event.task.isCompleted))
             }
             is TaskEvent.SetSearchQuery -> searchQuery.value = event.query
             is TaskEvent.ToggleHideCompleted -> hideCompleted.value = event.hide
-            // New Events
-            is TaskEvent.SaveTask -> viewModelScope.launch { dao.insertTask(event.task) }
-            is TaskEvent.SaveCategory -> viewModelScope.launch { categoryDao.insertCategory(event.category) }
+
+            is TaskEvent.SaveTask -> viewModelScope.launch { taskRepository.insertTask(event.task) }
+            is TaskEvent.SaveCategory -> viewModelScope.launch { categoryRepository.insertCategory(event.category) }
         }
     }
 }
@@ -60,7 +62,6 @@ sealed interface TaskEvent {
     data class ToggleComplete(val task: Task): TaskEvent
     data class SetSearchQuery(val query: String): TaskEvent
     data class ToggleHideCompleted(val hide: Boolean): TaskEvent
-    // New Event Types
     data class SaveTask(val task: Task): TaskEvent
     data class SaveCategory(val category: Category): TaskEvent
 }

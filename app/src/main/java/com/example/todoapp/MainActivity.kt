@@ -30,28 +30,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Manual DI for simplicity (Use Hilt in production)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             askNotificationPermission()
         }
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "todo-database"
-        ).build()
-
-        val viewModel = TaskViewModel(db.taskDao())
 
         setContent {
-            ToDoAppTheme {
-                // Navigation logic (e.g., NavHost) would go here.
-                // For now, displaying the ListScreen directly:
-                ListScreen(
-                    viewModel = viewModel,
-                    onNavigateToTask = { taskId ->
-                        // Navigate to Detail/Edit Screen
-                    }
-                )
-            }
+            TodoAppNavHost()
         }
     }
 
