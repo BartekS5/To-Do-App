@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.todoapp.AppViewModelProvider
 import com.example.todoapp.ui.theme.ToDoAppTheme
+import androidx.navigation.navDeepLink
 
 @Composable
 fun TodoAppNavHost(
@@ -52,7 +53,13 @@ fun TodoAppNavHost(
 
             composable(
                 route = "detail/{taskId}",
-                arguments = listOf(navArgument("taskId") { type = NavType.IntType })
+                arguments = listOf(navArgument("taskId") { type = NavType.IntType }),
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "app://todo/detail/{taskId}"
+                    }
+                )
+
             ) {
                 TaskDetailScreen(
                     navigateToEditItem = { taskId ->

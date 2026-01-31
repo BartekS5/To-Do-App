@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.todoapp.MainActivity
 import com.example.todoapp.R
+import androidx.core.net.toUri
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -27,7 +28,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val deepLinkIntent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("app://todo/entry?taskId=$taskId"),
+            "app://todo/detail/$taskId".toUri(),
             context,
             MainActivity::class.java
         )

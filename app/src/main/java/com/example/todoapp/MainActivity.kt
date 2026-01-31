@@ -22,9 +22,9 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            Toast.makeText(this, "Notifications enabled!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Notifications enabled", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "Task reminders will not appear.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Task reminders will not appear", Toast.LENGTH_LONG).show()
         }
     }
 
