@@ -15,10 +15,17 @@ class SettingsViewModel(
 
     val notificationOffset: Flow<Int> = userPreferencesRepository.notificationOffset
     val allCategories: Flow<List<Category>> = categoryRepository.getAllCategoriesStream()
+    val showCompleted: Flow<Boolean> = userPreferencesRepository.showCompletedTasks
 
     fun setNotificationOffset(minutes: Int) {
         viewModelScope.launch {
             userPreferencesRepository.saveNotificationOffset(minutes)
+        }
+    }
+
+    fun setShowCompleted(show: Boolean) {
+        viewModelScope.launch{
+            userPreferencesRepository.saveShowCompleted(show)
         }
     }
 

@@ -5,8 +5,6 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.todoapp.data.AppContainer
-import com.example.todoapp.ui.theme.ToDoAppTheme
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -15,7 +13,8 @@ object AppViewModelProvider {
 
             TaskViewModel(
                 taskRepository = app.container.taskRepository,
-                categoryRepository = app.container.categoryRepository
+                categoryRepository = app.container.categoryRepository,
+                userPreferencesRepository = app.container.userPreferencesRepository
             )
         }
 
@@ -23,7 +22,8 @@ object AppViewModelProvider {
             ItemEntryViewModel(
                 this.createSavedStateHandle(),
                 todoApplication().container.taskRepository,
-                todoApplication().container.userPreferencesRepository
+                todoApplication().container.userPreferencesRepository,
+                todoApplication().container.categoryRepository
             )
         }
 

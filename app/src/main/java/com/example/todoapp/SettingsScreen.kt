@@ -22,6 +22,7 @@ fun SettingsScreen(
 ) {
     val notificationOffset by viewModel.notificationOffset.collectAsState(initial = 5)
     val categories by viewModel.allCategories.collectAsState(initial = emptyList())
+    val showCompleted by viewModel.showCompleted.collectAsState(initial = true)
 
     Scaffold(
         topBar = {
@@ -36,18 +37,29 @@ fun SettingsScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).padding(16.dp)) {
+
+            Text("Display Options", style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Show Completed Tasks", modifier = Modifier.weight(1f))
+                Switch(
+                    checked = showCompleted,
+                    onCheckedChange = { viewModel.setShowCompleted(it) }
+                )
+            }
+
             Text("Notifications", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Notify me ${notificationOffset} minutes before due time")
+            Text("Notify me $notificationOffset minutes before due time")
             Slider(
                 value = notificationOffset.toFloat(),
                 onValueChange = { viewModel.setNotificationOffset(it.toInt()) },
                 valueRange = 0f..60f,
                 steps = 11
             )
-
-            Divider(modifier = Modifier.padding(vertical = 16.dp))
 
             Text("Category Visibility", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))

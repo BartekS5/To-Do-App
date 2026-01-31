@@ -13,11 +13,17 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
+import android.webkit.MimeTypeMap
+import com.example.todoapp.data.repository.CategoryRepository
+import com.example.todoapp.data.Category
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 class ItemEntryViewModel(
     savedStateHandle: SavedStateHandle,
     private val taskRepository: TaskRepository,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     val taskId: Int = savedStateHandle["taskId"] ?: 0
@@ -40,15 +46,23 @@ class ItemEntryViewModel(
     }
 
     fun addAttachment(context: Context, uri: Uri) {
-        // Copy file to internal storage
+        // 1. Get the correct file extension
+        val type = context.contentResolver.getType(uri)
+        val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(type) ?: "bin"
+
+        // 2. Create file name WITH extension
+        val fileName = "attach_${UUID.randomUUID()}.$extension"
+
+        // 3. Copy file to internal storage
         val inputStream = context.contentResolver.openInputStream(uri)
-        val fileName = "attach_${UUID.randomUUID()}"
         val file = File(context.filesDir, fileName)
+
         inputStream?.use { input ->
             file.outputStream().use { output ->
                 input.copyTo(output)
             }
         }
+
         val currentAttachments = _uiState.value.attachments.toMutableList()
         currentAttachments.add(file.absolutePath)
         updateUiState(_uiState.value.copy(attachments = currentAttachments))
@@ -57,6 +71,15 @@ class ItemEntryViewModel(
     suspend fun saveTask(context: Context) {
         val task = _uiState.value.toTask(taskId)
         taskRepository.insertTask(task)
+
+        val categoryName = _uiState.value.category.trim()
+        if (categoryName.isNotEmpty()) {
+            val newCategory = Category(
+                name = categoryName,
+                colorArgb = (0xFF000000 + (Math.random() * 0xFFFFFF).toLong())
+            )
+            categoryRepository.insertCategory(newCategory)
+        }
 
         if (task.isNotificationEnabled) {
             val offset = userPreferencesRepository.notificationOffset.first()
@@ -72,6 +95,7 @@ data class TaskUiState(
     val description: String = "",
     val category: String = "General",
     val dueTime: Long = System.currentTimeMillis(),
+    val creationTime: Long = System.currentTimeMillis(),
     val isNotificationEnabled: Boolean = false,
     val attachments: List<String> = emptyList(),
     val isEntryValid: Boolean = false
@@ -82,6 +106,7 @@ fun Task.toUiState(): TaskUiState = TaskUiState(
     description = description,
     category = category,
     dueTime = dueTime,
+    creationTime = creationTime,
     isNotificationEnabled = isNotificationEnabled,
     attachments = if (attachmentUris.isEmpty()) emptyList() else attachmentUris.split(","),
     isEntryValid = true
@@ -93,6 +118,7 @@ fun TaskUiState.toTask(id: Int): Task = Task(
     description = description,
     category = category,
     dueTime = dueTime,
+    creationTime = creationTime,
     isNotificationEnabled = isNotificationEnabled,
     attachmentUris = attachments.joinToString(",")
 )

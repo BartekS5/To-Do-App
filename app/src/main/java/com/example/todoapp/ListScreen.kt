@@ -51,18 +51,12 @@ fun ListScreen(
 ){
     val tasks by viewModel.tasks.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-    val hideCompleted by viewModel.hideCompleted.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {Text("To Do List")},
                 actions = {
-                    Text("Hide Done", style = MaterialTheme.typography.bodySmall)
-                    Switch(
-                        checked = hideCompleted,
-                        onCheckedChange = { viewModel.onEvent(TaskEvent.ToggleHideCompleted(it)) }
-                    )
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }

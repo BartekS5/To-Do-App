@@ -45,7 +45,7 @@ fun ItemEntryScreen(
     val itemUiState by viewModel.uiState.collectAsState()
 
     // File Picker
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { viewModel.addAttachment(context, it) }
     }
 
@@ -126,7 +126,7 @@ fun ItemEntryScreen(
             // Attachments
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Attachments", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                IconButton(onClick = { launcher.launch(arrayOf("*/*")) }) {
+                IconButton(onClick = { launcher.launch("*/*") }) {
                     Icon(Icons.Default.AttachFile, "Add Attachment")
                 }
             }
@@ -156,12 +156,35 @@ fun showDateTimePicker(context: Context, current: Long, onDateSelected: (Long) -
 fun formatDate(timestamp: Long): String = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(timestamp))
 
 fun openFile(context: Context, uriString: String) {
+    val file = java.io.File(uriString)
+    if (!file.exists()) {
+        Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     try {
+        // 1. Get the content URI using FileProvider
+        val uri = androidx.core.content.FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            file
+        )
+
         val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
-        intent.data = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", java.io.File(uriString))
+
+        // 2. Determine the MIME type (e.g., "image/jpeg")
+        // FileProvider determines this automatically if the file has an extension
+        val mimeType = context.contentResolver.getType(uri) ?: "*/*"
+
+        // 3. Set Data AND Type explicitly
+        intent.setDataAndType(uri, mimeType)
+
+        // 4. Grant permissions
         intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
         context.startActivity(intent)
     } catch (e: Exception) {
+        e.printStackTrace()
         Toast.makeText(context, "Cannot open file", Toast.LENGTH_SHORT).show()
     }
 }

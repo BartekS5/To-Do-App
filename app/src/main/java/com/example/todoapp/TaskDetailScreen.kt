@@ -1,6 +1,7 @@
 package com.example.todoapp
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -11,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.AppViewModelProvider
+import androidx.compose.foundation.lazy.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +45,7 @@ fun TaskDetailScreen(
             Text(uiState.title, style = MaterialTheme.typography.headlineMedium)
             Text("Category: ${uiState.category}", color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(8.dp))
+            Text("Created: ${formatDate(uiState.creationTime)}")
             Text("Due: ${formatDate(uiState.dueTime)}")
             Spacer(modifier = Modifier.height(16.dp))
             Text(uiState.description, style = MaterialTheme.typography.bodyLarge)
@@ -50,9 +53,11 @@ fun TaskDetailScreen(
             if(uiState.attachments.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Attachments:", style = MaterialTheme.typography.titleMedium)
-                uiState.attachments.forEach { path ->
-                    TextButton(onClick = { openFile(context, path) }) {
-                        Text("View Attachment")
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(uiState.attachments) { path ->
+                        TextButton(onClick = { openFile(context, path) }) {
+                            Text("View Attachment")
+                        }
                     }
                 }
             }
