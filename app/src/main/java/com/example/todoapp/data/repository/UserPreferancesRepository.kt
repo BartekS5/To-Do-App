@@ -20,7 +20,7 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
         .map { preferences -> preferences[SHOW_COMPLETED] ?: true }
 
     val notificationOffset: Flow<Int> = dataStore.data
-        .map { preferences -> preferences[NOTIFICATION_OFFSET] ?: 5 } // Default 5 minutes
+        .map { preferences -> preferences[NOTIFICATION_OFFSET] ?: 5 }
 
     suspend fun saveShowCompleted(show: Boolean) {
         dataStore.edit { preferences -> preferences[SHOW_COMPLETED] = show }

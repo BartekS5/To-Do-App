@@ -14,12 +14,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
 
     companion object {
-        @Volatile // visibility to all the threads
+        @Volatile
         private var Instance: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            // If the instance allows exists, return it.
-            // If not, create it inside a synchronized block (thread-safe).
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,

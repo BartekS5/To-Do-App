@@ -13,4 +13,5 @@ interface TaskRepository {
     suspend fun insertTask(task: Task) : Long
     suspend fun deleteTask(task: Task)
     suspend fun updateTask(task: Task)
+    suspend fun getTaskCountByCategory(category: String): Int
 }

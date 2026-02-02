@@ -36,9 +36,5 @@ object AppViewModelProvider {
     }
 }
 
-/**
- * Extension function to queries for [Application] object and returns an instance of
- * [ToDoApplication].
- */
 fun CreationExtras.todoApplication(): ToDoApplication =
     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as ToDoApplication)

@@ -46,14 +46,11 @@ class ItemEntryViewModel(
     }
 
     fun addAttachment(context: Context, uri: Uri) {
-        // 1. Get the correct file extension
         val type = context.contentResolver.getType(uri)
         val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(type) ?: "bin"
 
-        // 2. Create file name WITH extension
         val fileName = "attach_${UUID.randomUUID()}.$extension"
 
-        // 3. Copy file to internal storage
         val inputStream = context.contentResolver.openInputStream(uri)
         val file = File(context.filesDir, fileName)
 
@@ -86,6 +83,25 @@ class ItemEntryViewModel(
             AlarmScheduler(context).schedule(task, offset)
         } else {
             AlarmScheduler(context).cancel(task)
+        }
+    }
+
+    suspend fun deleteTask(context: Context) {
+        val task = _uiState.value.toTask(taskId)
+
+        AlarmScheduler(context).cancel(task)
+
+        taskRepository.deleteTask(task)
+
+        val categoryName = task.category
+        if (categoryName.isNotEmpty()) {
+            val remainingTasks = taskRepository.getTaskCountByCategory(categoryName)
+            if (remainingTasks == 0) {
+                val category = categoryRepository.getCategoryByName(categoryName)
+                if (category != null) {
+                    categoryRepository.deleteCategory(category)
+                }
+            }
         }
     }
 }

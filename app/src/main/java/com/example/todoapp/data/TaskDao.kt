@@ -30,4 +30,7 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE title LIKE '%' || :query || '%' ORDER BY dueTime ASC")
     fun searchTasks(query: String): Flow<List<Task>>
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE category = :category")
+    suspend fun getTaskCountByCategory(category: String): Int
 }
