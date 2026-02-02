@@ -44,7 +44,6 @@ fun ItemEntryScreen(
     val context = LocalContext.current
     val itemUiState by viewModel.uiState.collectAsState()
 
-    // File Picker
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { viewModel.addAttachment(context, it) }
     }
@@ -78,7 +77,6 @@ fun ItemEntryScreen(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Title
             OutlinedTextField(
                 value = itemUiState.title,
                 onValueChange = { viewModel.updateUiState(itemUiState.copy(title = it)) },
@@ -86,7 +84,6 @@ fun ItemEntryScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Description
             OutlinedTextField(
                 value = itemUiState.description,
                 onValueChange = { viewModel.updateUiState(itemUiState.copy(description = it)) },
@@ -95,7 +92,6 @@ fun ItemEntryScreen(
                 minLines = 3
             )
 
-            // Category (Simple implementation)
             OutlinedTextField(
                 value = itemUiState.category,
                 onValueChange = { viewModel.updateUiState(itemUiState.copy(category = it)) },
@@ -103,7 +99,6 @@ fun ItemEntryScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Date & Time
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Due: ${formatDate(itemUiState.dueTime)}",
@@ -114,7 +109,6 @@ fun ItemEntryScreen(
                 }
             }
 
-            // Notifications
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Enable Notification", modifier = Modifier.weight(1f))
                 Switch(
@@ -123,7 +117,6 @@ fun ItemEntryScreen(
                 )
             }
 
-            // Attachments
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Attachments", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 IconButton(onClick = { launcher.launch("*/*") }) {
@@ -163,7 +156,6 @@ fun openFile(context: Context, uriString: String) {
     }
 
     try {
-        // 1. Get the content URI using FileProvider
         val uri = androidx.core.content.FileProvider.getUriForFile(
             context,
             "${context.packageName}.provider",
@@ -171,15 +163,9 @@ fun openFile(context: Context, uriString: String) {
         )
 
         val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
-
-        // 2. Determine the MIME type (e.g., "image/jpeg")
-        // FileProvider determines this automatically if the file has an extension
         val mimeType = context.contentResolver.getType(uri) ?: "*/*"
 
-        // 3. Set Data AND Type explicitly
         intent.setDataAndType(uri, mimeType)
-
-        // 4. Grant permissions
         intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
         context.startActivity(intent)
