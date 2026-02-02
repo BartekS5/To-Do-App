@@ -11,9 +11,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.room.Room
-import com.example.todoapp.data.AppDatabase
-import com.example.todoapp.ui.theme.ToDoAppTheme
 import androidx.annotation.RequiresApi
 
 class MainActivity : ComponentActivity() {

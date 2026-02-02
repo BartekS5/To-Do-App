@@ -20,15 +20,13 @@ class TaskViewModel(
 ) : ViewModel() {
 
     val searchQuery = MutableStateFlow("")
-    val selectedCategories = MutableStateFlow<Set<String>>(emptySet())
 
     val tasks = combine(
         taskRepository.getAllTasksStream(),
         categoryRepository.getAllCategoriesStream(),
         searchQuery,
-        userPreferencesRepository.showCompletedTasks,
-        selectedCategories
-    ) { tasks, categoriesList, query, showCompleted, categories ->
+        userPreferencesRepository.showCompletedTasks
+    ) { tasks, categoriesList, query, showCompleted ->
         val hiddenCategoryNames = categoriesList
             .filter { !it.isVisible }
             .map { it.name }
@@ -38,10 +36,9 @@ class TaskViewModel(
             val matchesSearch = task.title.contains(query, ignoreCase = true) ||
                     task.description.contains(query, ignoreCase = true)
             val matchesCompletion = if (showCompleted) true else !task.isCompleted
-            val matchesCategory = if (categories.isEmpty()) true else task.category in categories
             val isGloballyVisible = task.category !in hiddenCategoryNames
 
-            matchesSearch && matchesCompletion && matchesCategory && isGloballyVisible
+            matchesSearch && matchesCompletion && isGloballyVisible
         }.sortedBy { it.dueTime }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
