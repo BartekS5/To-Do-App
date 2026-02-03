@@ -128,7 +128,7 @@ fun ItemEntryScreen(
                 items(itemUiState.attachments) { uriStr ->
                     SuggestionChip(
                         onClick = { openFile(context, uriStr.toString()) },
-                        label = { Text("File") }
+                        label = { Text(uriStr.toString()) }
                     )
                 }
             }

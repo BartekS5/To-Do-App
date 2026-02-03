@@ -89,6 +89,16 @@ class ItemEntryViewModel(
     suspend fun deleteTask(context: Context) {
         val task = _uiState.value.toTask(taskId)
 
+        if (task.attachmentUris.isNotEmpty()) {
+            val filePaths = task.attachmentUris.split(",")
+            filePaths.forEach { path ->
+                val file = File(path)
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+        }
+
         AlarmScheduler(context).cancel(task)
 
         taskRepository.deleteTask(task)

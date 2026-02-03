@@ -15,6 +15,7 @@ import com.example.todoapp.AppViewModelProvider
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.Delete
 import kotlinx.coroutines.launch
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,8 +69,9 @@ fun TaskDetailScreen(
                 Text("Attachments:", style = MaterialTheme.typography.titleMedium)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(uiState.attachments) { path ->
+                        val fileName = File(path).name
                         TextButton(onClick = { openFile(context, path) }) {
-                            Text("View Attachment")
+                            Text(fileName)
                         }
                     }
                 }
